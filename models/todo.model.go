@@ -34,9 +34,8 @@ func (t *Todo) GetAllTodos() ([]Todo, error) {
 }
 
 func (t *Todo) GetNoteById() (Todo, error) {
-
 	query := `SELECT id, title, description, status FROM todos
-		WHERE created_by = ? AND id=?`
+		WHERE created_by = $1 AND id=$2`
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
@@ -46,9 +45,7 @@ func (t *Todo) GetNoteById() (Todo, error) {
 	defer stmt.Close()
 
 	var recoveredTodo Todo
-	err = stmt.QueryRow(
-		t.CreatedBy, t.ID,
-	).Scan(
+	err = stmt.QueryRow(t.CreatedBy, t.ID).Scan(
 		&recoveredTodo.ID,
 		&recoveredTodo.Title,
 		&recoveredTodo.Description,
@@ -62,9 +59,8 @@ func (t *Todo) GetNoteById() (Todo, error) {
 }
 
 func (t *Todo) CreateTodo() (Todo, error) {
-
 	query := `INSERT INTO todos (created_by, title, description)
-		VALUES(?, ?, ?) RETURNING *`
+		VALUES($1, $2, $3) RETURNING *`
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
@@ -74,11 +70,7 @@ func (t *Todo) CreateTodo() (Todo, error) {
 	defer stmt.Close()
 
 	var newTodo Todo
-	err = stmt.QueryRow(
-		t.CreatedBy,
-		t.Title,
-		t.Description,
-	).Scan(
+	err = stmt.QueryRow(t.CreatedBy, t.Title, t.Description).Scan(
 		&newTodo.ID,
 		&newTodo.CreatedBy,
 		&newTodo.Title,
@@ -89,16 +81,12 @@ func (t *Todo) CreateTodo() (Todo, error) {
 		return Todo{}, err
 	}
 
-	/* if i, err := result.RowsAffected(); err != nil || i != 1 {
-		return errors.New("error: an affected row was expected")
-	} */
-
 	return newTodo, nil
 }
-func (t *Todo) UpdateTodo() (Todo, error) {
 
-	query := `UPDATE todos SET title = ?,  description = ?, status = ?
-		WHERE created_by = ? AND id=? RETURNING id, title, description, status`
+func (t *Todo) UpdateTodo() (Todo, error) {
+	query := `UPDATE todos SET title = $1, description = $2, status = $3
+		WHERE created_by = $4 AND id=$5 RETURNING id, title, description, status`
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
@@ -128,9 +116,8 @@ func (t *Todo) UpdateTodo() (Todo, error) {
 }
 
 func (t *Todo) DeleteTodo() error {
-
 	query := `DELETE FROM todos
-		WHERE created_by = ? AND id=?`
+		WHERE created_by = $1 AND id=$2`
 
 	stmt, err := db.Prepare(query)
 	if err != nil {

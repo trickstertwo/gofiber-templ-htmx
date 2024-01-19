@@ -1,4 +1,4 @@
-# Go/Fiber🧬+<span style="color:yellow"></></span>Templ to-do list app with user login and HTMx-powered frontend (Demo)
+# Go/Fiber + Templ/Htmx + Postgres: To-do list app /w login 
 
 A full-stack application using Golang's Fiber framework with session-based authentication. Once we are authenticated we can enter a view from which we can manage a list of tasks (list, update and delete). Requests to the backend are controlled by [</>htmx](https://htmx.org/) ([hypermedia](https://hypermedia.systems/) only).
 
